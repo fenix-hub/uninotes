@@ -6,17 +6,13 @@ export default defineNuxtConfig({
   css: [
     '~/assets/css/fonts.scss',
     '~/assets/css/selection.scss',
+    '~/assets/css/palette.scss',
   ],
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/google-fonts',
     '@nuxtjs/supabase'
   ],
-  runtimeConfig: {
-    public: {
-      supabaseCallback: process.env.CONFIRM_REDIRECT_URL || '/confirm'
-    }
-  },
   supabase: {
     url: process.env.SUPABASE_URL,
     key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -25,14 +21,23 @@ export default defineNuxtConfig({
       login: "/auth/login",
       callback: "/auth/confirm",
       saveRedirectToCookie: true,
-      exclude: ["/", "/login", "/register", "/confirm"], // Exclude these paths from redirection
-    } as RedirectOptions
+      exclude: ["/", "/auth/login", "/auth/confirm", "/notes"], // Exclude these paths from redirection
+    } as RedirectOptions,
+    clientOptions: {
+      db: {
+        schema: 'uninotes', // Specify the schema if needed
+      }
+    }
   },
   googleFonts: {
     families: {
-      'Playwrite+Polska': [100, 200, 300, 400]
+      'Playwrite+IT+Moderna': [100, 200, 300, 400]
     }
   },
   components: true,
-  devtools: { enabled: true }
+  devtools: { enabled: true },
+  typescript: {
+    strict: true,
+    typeCheck: true
+  }
 })

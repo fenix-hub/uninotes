@@ -1,13 +1,9 @@
 <script setup lang="ts">
 const supabase = useSupabaseClient()
 const email = ref('')
-const config = useRuntimeConfig()
 const isLoading = ref(false)
 const isEmailSent = ref(false)
 const error = ref('')
-
-// Accedi al callback URL di Supabase
-const supabaseCallback = config.public.supabaseCallback
 
 const signInWithOtp = async () => {
   if (!email.value) {
@@ -20,7 +16,10 @@ const signInWithOtp = async () => {
   
   try {
     const { error: authError } = await supabase.auth.signInWithOtp({
-      email: email.value
+      email: email.value,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirm`
+      }
     })
     
     if (authError) {
@@ -52,14 +51,14 @@ const resetForm = () => {
             📧
           </div>
           <div class="space-y-4">
-            <h2 class="text-2xl font-bold text-green-800 font-sketch transform -rotate-1">
+            <h2 class="text-2xl font-bold text-green-800 transform -rotate-1">
               Email Inviata! ✅
             </h2>
-            <p class="text-gray-600 font-sketch">
+            <p class="text-gray-600">
               Controlla la tua casella di posta e clicca sul link per accedere
             </p>
             <div class="bg-green-50 border-2 border-dashed border-green-300 p-4 rounded-lg transform rotate-0.5">
-              <p class="text-sm text-green-700 font-sketch">
+              <p class="text-sm text-green-700">
                 📧 Email inviata a: <strong>{{ email }}</strong>
               </p>
             </div>
@@ -75,7 +74,7 @@ const resetForm = () => {
         <!-- Login Form -->
         <div v-else class="space-y-6">
           <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800 font-sketch transform -rotate-0.5">
+            <h2 class="text-2xl font-bold text-gray-800 transform -rotate-0.5">
               Accedi ai tuoi appunti ✏️
             </h2>
           </div>
@@ -90,7 +89,7 @@ const resetForm = () => {
 
           <!-- Email Input -->
           <div class="space-y-2">
-            <label class="block text-sm font-bold text-gray-700 font-sketch transform rotate-0.2">
+            <label class="block text-sm font-bold text-gray-700 transform rotate-0.2">
               📧 Indirizzo Email
             </label>
             <input
@@ -108,7 +107,7 @@ const resetForm = () => {
           <button 
             @click="signInWithOtp"
             :disabled="isLoading || !email"
-            class="sketch-button w-full"
+            class="sketch-button w-full btn-primary"
           >
             <span v-if="isLoading" class="flex items-center justify-center space-x-2">
               <div class="animate-spin text-xl">📝</div>
@@ -124,7 +123,7 @@ const resetForm = () => {
           <div class="bg-blue-50 border-2 border-dashed border-blue-300 p-4 rounded-lg transform -rotate-0.3">
             <div class="flex items-start space-x-3">
               <span class="text-xl">💡</span>
-              <div class="text-sm text-blue-700 font-sketch">
+              <div class="text-sm text-blue-700">
                 <p><strong>Come funziona:</strong></p>
                 <ol class="list-decimal list-inside mt-2 space-y-1">
                   <li>Inserisci la tua email universitaria</li>
@@ -138,7 +137,7 @@ const resetForm = () => {
 
         <!-- Footer -->
         <div class="mt-8 pt-6 border-t-2 border-dashed border-gray-400">
-          <p class="text-center text-xs text-gray-500 font-sketch italic">
+          <p class="text-center text-xs text-gray-500 italic">
             Problemi con l'accesso? 
             <a href="mailto:support@uninotes.com" class="sketch-link font-bold">
               📞 Contatta il supporto
@@ -198,7 +197,6 @@ const resetForm = () => {
   border: 2px solid #4a4a4a;
   border-radius: 8px;
   background: #fefdf8;
-  font-family: 'Playwrite Polska', cursive;
   font-size: 16px;
   transform: rotate(-0.2deg);
   transition: all 0.2s ease;
@@ -221,11 +219,8 @@ const resetForm = () => {
 .sketch-button {
   width: 100%;
   padding: 14px 20px;
-  border: 3px solid #4a4a4a;
   border-radius: 8px;
-  background: #4a4a4a;
   color: white;
-  font-family: 'Playwrite Polska', cursive;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -237,7 +232,6 @@ const resetForm = () => {
 .sketch-button:hover:not(:disabled) {
   transform: rotate(0deg) scale(1.02);
   box-shadow: 4px 4px 0px rgba(0,0,0,0.25);
-  background: #2a2a2a;
 }
 
 .sketch-button:disabled {
@@ -253,7 +247,6 @@ const resetForm = () => {
   border-radius: 8px;
   background: #fefdf8;
   color: #4a4a4a;
-  font-family: 'Playwrite Polska', cursive;
   font-size: 14px;
   font-weight: bold;
   cursor: pointer;

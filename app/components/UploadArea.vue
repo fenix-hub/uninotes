@@ -1,7 +1,7 @@
 <template>
   <section class="max-w-4xl mx-auto px-6 mb-8">
     <div class="sketch-border p-6">
-      <h2 class="text-2xl font-bold text-gray-800 mb-4 sketch-underline font-sketch">
+      <h2 class="text-2xl font-bold text-gray-800 mb-4 sketch-underline">
         ➕ Aggiungi Nuovi Appunti
       </h2>
       <div 
@@ -12,13 +12,13 @@
         @click="selectFiles"
       >
         <div class="sketch-icon text-6xl mb-4">📝</div>
-        <p class="text-xl text-gray-700 mb-4 font-sketch">
+        <p class="text-xl text-gray-700 mb-4">
           Trascina i tuoi file qui o clicca per selezionare
         </p>
-        <button class="btn-sketch px-6 py-3 text-lg font-semibold text-gray-800 hover:bg-gray-50 font-sketch">
+        <button class="btn-sketch px-6 py-3 text-lg font-semibold text-gray-800 hover:bg-gray-50">
           Scegli File
         </button>
-        <p class="text-sm text-gray-500 mt-2 font-sketch">
+        <p class="text-sm text-gray-500 mt-2">
           Supporta PDF, DOCX, TXT, MD e altro...
         </p>
       </div>

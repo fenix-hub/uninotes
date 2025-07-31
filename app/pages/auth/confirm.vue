@@ -35,10 +35,10 @@ watch(user, () => {
 
         <!-- Main Message -->
         <div class="space-y-4 mb-8">
-          <h2 class="text-2xl font-bold text-gray-800 font-sketch transform -rotate-1">
+          <h2 class="text-2xl font-bold text-gray-800 transform -rotate-1">
             Conferma in corso...
           </h2>
-          <p class="text-gray-600 font-sketch italic transform rotate-0.5">
+          <p class="text-gray-600 italic transform rotate-0.5">
             "Stiamo verificando la tua identità e preparando i tuoi appunti"
           </p>
         </div>
@@ -51,16 +51,16 @@ watch(user, () => {
         </div>
 
         <!-- Additional Info -->
-        <div class="text-sm text-gray-600 space-y-2 font-sketch">
+        <div class="text-sm text-gray-600 space-y-2">
           <p class="transform rotate-0.3">✨ Questo processo richiede solo qualche secondo</p>
           <p class="transform -rotate-0.2"><strong>⚠️ Non chiudere questa finestra</strong></p>
         </div>
 
         <!-- Footer -->
         <div class="mt-8 pt-6 border-t-2 border-dashed border-gray-400">
-          <p class="text-xs text-gray-500 font-sketch italic">
+          <p class="text-xs text-gray-500 italic">
             Problemi con l'accesso? 
-            <NuxtLink to="/auth/login" class="sketch-link font-bold">
+            <NuxtLink to="/login" class="sketch-link font-bold">
               👈 Torna al login
             </NuxtLink>
           </p>

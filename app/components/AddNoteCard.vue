@@ -2,10 +2,10 @@
   <div @click="$emit('addNote')"
     class="note-card p-6 border-dashed border-gray-400 bg-gray-50 flex flex-col items-center justify-center text-center min-h-[250px]">
     <div class="sketch-icon text-4xl mb-3 opacity-60">➕</div>
-    <h3 class="text-lg font-semibold text-gray-600 mb-2 font-sketch">
+    <h3 class="text-lg font-semibold text-gray-600 mb-2">
       Aggiungi Appunto
     </h3>
-    <p class="text-sm text-gray-500 mb-4 font-sketch">
+    <p class="text-sm text-gray-500 mb-4">
       Carica un nuovo file per condividere i tuoi appunti
     </p>
   </div>

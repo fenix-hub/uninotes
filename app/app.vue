@@ -1,5 +1,5 @@
 <template>
-  <div class="paper-texture min-h-screen font-sketch flex flex-col">
+  <div class="paper-texture min-h-screen flex flex-col font-sketch">
     <AppHeader />
     <main class="flex-1">
       <NuxtPage />
@@ -46,7 +46,6 @@
   border: 2px solid #4a4a4a;
   border-radius: 8px;
   position: relative;
-  background: #fefdf8;
 }
 
 .sketch-border::before {
