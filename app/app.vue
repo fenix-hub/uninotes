@@ -9,7 +9,15 @@
 </template>
 
 <script setup>
-// ...existing head setup if any (useHead)...
+
+useHead({
+  title: 'Sketchy Notes',
+  meta: [
+    { name: 'description', content: 'A sketchy notes app with a hand-drawn aesthetic.' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+  ]
+});
+
 </script>
 
 <style>

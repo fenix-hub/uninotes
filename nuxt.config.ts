@@ -21,7 +21,7 @@ export default defineNuxtConfig({
       login: "/auth/login",
       callback: "/auth/confirm",
       saveRedirectToCookie: true,
-      exclude: ["/", "/auth/login", "/auth/confirm", "/notes"], // Exclude these paths from redirection
+      exclude: ["/", "/auth/login", "/auth/confirm"], // Exclude these paths from redirection
     } as RedirectOptions,
     clientOptions: {
       db: {

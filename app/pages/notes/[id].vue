@@ -11,8 +11,28 @@
         </button>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="pending" class="space-y-6">
+        <LoadingNoteDetail />
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-20">
+        <div class="bg-white p-8 sketch-border shadow-lg transform rotate-1 max-w-md mx-auto">
+          <div class="text-6xl mb-4">😵</div>
+          <h1 class="text-2xl font-bold text-gray-800 mb-2">Errore nel caricamento</h1>
+          <p class="text-gray-600 mb-4">{{ error.message || 'Impossibile caricare la nota.' }}</p>
+          <button 
+            @click="refresh()"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          >
+            Riprova
+          </button>
+        </div>
+      </div>
+
       <!-- Note Not Found -->
-      <div v-if="!note" class="text-center py-20">
+      <div v-else-if="!data?.data" class="text-center py-20">
         <div class="bg-white p-8 sketch-border shadow-lg transform rotate-1 max-w-md mx-auto">
           <div class="text-6xl mb-4">😵</div>
           <h1 class="text-2xl font-bold text-gray-800 mb-2">Nota non trovata</h1>
@@ -28,51 +48,51 @@
           <div class="bg-white p-6 sketch-border shadow-lg transform -rotate-0.5">
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">
-                <div class="text-4xl">{{ getSubjectIcon(note.subject) }}</div>
+                <div class="text-4xl">{{ getSubjectIcon(data.data.subject) }}</div>
                 <div>
-                  <h1 class="text-3xl font-bold text-gray-800">{{ note.title }}</h1>
-                  <p class="text-lg text-gray-600">{{ note.subject }}</p>
+                  <h1 class="text-3xl font-bold text-gray-800">{{ data.data.title }}</h1>
+                  <p class="text-lg text-gray-600">{{ data.data.subject }}</p>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <span 
                   class="px-3 py-1 rounded-full text-sm font-medium"
-                  :class="getStatusClass(note.status)"
+                  :class="getStatusClass(data.data.status)"
                 >
-                  {{ note.status.toUpperCase() }}
+                  {{ data.data.status.toUpperCase() }}
                 </span>
-                <span v-if="note.is_favorited" class="text-yellow-500 text-2xl">⭐</span>
-                <span v-if="note.is_public" class="text-green-500 text-xl">🌍</span>
+                <span v-if="data.data.is_favorited" class="text-yellow-500 text-2xl">⭐</span>
+                <span v-if="data.data.is_public" class="text-green-500 text-xl">🌍</span>
               </div>
             </div>
 
             <!-- Course Info -->
-            <div v-if="note.course_code || note.professor" class="mb-4 p-4 bg-blue-50 rounded-lg">
+            <div v-if="data.data.course_code || data.data.professor" class="mb-4 p-4 bg-blue-50 rounded-lg">
               <div class="grid md:grid-cols-2 gap-4 text-sm">
-                <div v-if="note.course_code">
+                <div v-if="data.data.course_code">
                   <span class="font-medium text-gray-700">Corso:</span>
-                  <span class="ml-2">{{ note.course_code }}</span>
+                  <span class="ml-2">{{ data.data.course_code }}</span>
                 </div>
-                <div v-if="note.professor">
+                <div v-if="data.data.professor">
                   <span class="font-medium text-gray-700">Professore:</span>
-                  <span class="ml-2">{{ note.professor }}</span>
+                  <span class="ml-2">{{ data.data.professor }}</span>
                 </div>
-                <div v-if="note.academic_year">
+                <div v-if="data.data.academic_year">
                   <span class="font-medium text-gray-700">Anno:</span>
-                  <span class="ml-2">{{ note.academic_year }}</span>
+                  <span class="ml-2">{{ data.data.academic_year }}</span>
                 </div>
-                <div v-if="note.semester">
+                <div v-if="data.data.semester">
                   <span class="font-medium text-gray-700">Semestre:</span>
-                  <span class="ml-2">{{ note.semester }}</span>
+                  <span class="ml-2">{{ data.data.semester }}</span>
                 </div>
               </div>
             </div>
 
             <!-- Tags -->
-            <div v-if="note.tags && note.tags.length > 0" class="mb-4">
+            <div v-if="data.data.tags && data.data.tags.length > 0" class="mb-4">
               <div class="flex flex-wrap gap-2">
                 <span 
-                  v-for="tag in note.tags" 
+                  v-for="tag in data.data.tags" 
                   :key="tag"
                   class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium"
                 >
@@ -83,8 +103,8 @@
 
             <!-- Meta Info -->
             <div class="flex items-center justify-between text-sm text-gray-500 border-t pt-4">
-              <span>📅 Creato il {{ formatDate(note.created_at) }}</span>
-              <span>📝 Aggiornato il {{ formatDate(note.updated_at) }}</span>
+              <span>📅 Creato il {{ formatDate(data.data.created_at) }}</span>
+              <span>📝 Aggiornato il {{ formatDate(data.data.updated_at) }}</span>
             </div>
           </div>
 
@@ -102,19 +122,30 @@
               />
             </div>
 
+            <!-- File Loading -->
+            <div v-else-if="fileLoading" class="p-4">
+              <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                📎 Documento allegato
+              </h3>
+              <div class="w-full h-[70vh] border rounded-lg bg-gray-100 flex items-center justify-center">
+                <LoadingSpinner class="w-8 h-8" />
+                <span class="ml-2 text-gray-600">Caricamento file...</span>
+              </div>
+            </div>
+
             <!-- Text Content -->
-            <div v-if="note.content" class="p-6">
+            <div v-if="data.data.content" class="p-6">
               <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                 📝 Contenuto testuale
               </h3>
               <div 
                 class="prose prose-lg max-w-none text-gray-700 leading-relaxed"
-                v-html="formatContent(note.content)"
+                v-html="formatContent(data.data.content)"
               />
             </div>
 
             <!-- No Content Message -->
-            <div v-if="!pdfUrl && !note.content" class="p-8 text-center text-gray-500">
+            <div v-if="!pdfUrl && !data.data.content && !fileLoading" class="p-8 text-center text-gray-500">
               <div class="text-6xl mb-4">📄</div>
               <p>Nessun contenuto disponibile per questa nota.</p>
             </div>
@@ -128,9 +159,9 @@
             <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               📎 File allegati
             </h3>
-            <div v-if="note.note_files && note.note_files.length > 0" class="space-y-3">
+            <div v-if="data.data.note_files && data.data.note_files.length > 0" class="space-y-3">
               <div 
-                v-for="file in note.note_files" 
+                v-for="file in data.data.note_files" 
                 :key="file.id"
                 class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
@@ -143,9 +174,11 @@
                 </div>
                 <button 
                   @click="downloadFile(file.id, file.file_name)"
-                  class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                  :disabled="downloadingFiles.has(file.id)"
+                  class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1"
                 >
-                  Download
+                  <LoadingSpinner v-if="downloadingFiles.has(file.id)" class="w-3 h-3" />
+                  <span>{{ downloadingFiles.has(file.id) ? 'Download...' : 'Download' }}</span>
                 </button>
               </div>
             </div>
@@ -160,7 +193,7 @@
             <h3 class="text-lg font-bold text-gray-800 mb-4">Azioni rapide</h3>
             <div class="space-y-3">
               <button 
-                v-if="note.is_public"
+                v-if="data.data.is_public"
                 @click="shareNote"
                 class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
@@ -168,9 +201,11 @@
               </button>
               <button 
                 @click="toggleFavorite"
-                class="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                :disabled="favoriteLoading"
+                class="w-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
-                {{ note.is_favorited ? '⭐ Rimuovi dai preferiti' : '⭐ Aggiungi ai preferiti' }}
+                <LoadingSpinner v-if="favoriteLoading" class="w-4 h-4" />
+                <span>{{ data.data.is_favorited ? '⭐ Rimuovi dai preferiti' : '⭐ Aggiungi ai preferiti' }}</span>
               </button>
               <button 
                 @click="printNote"
@@ -207,66 +242,76 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { ref, onUnmounted } from 'vue'
-import type { NoteResponse, NotesResponse } from '~~/types/api.types'
-import type { Note } from '~~/types/note.types'
+import { ref, onUnmounted, watch } from 'vue'
+import type { NoteResponse } from '~~/types/api.types'
 
 const route = useRoute()
 const router = useRouter()
-const noteId = route.params.id
-const note = ref<Note>()
+const noteId = route.params.id as string
+
+// Reactive states
 const pdfUrl = ref<string>('')
+const fileLoading = ref(false)
+const favoriteLoading = ref(false)
+const downloadingFiles = ref(new Set<string>())
 
-// Fetch note from API
-const noteResponse = await $fetch<NoteResponse>('/api/notes/' + noteId, {
-  headers: useRequestHeaders(['cookie'])
+// Async data fetching
+const { data, pending, error, refresh } = await useLazyFetch<NoteResponse>(`/api/notes/${noteId}`, {
+  key: `note-${noteId}`,
+  server: false, // Client-side only for immediate navigation
 })
 
-// Extract note from the response
-if (noteResponse && noteResponse.data) {
-  note.value = noteResponse.data
-}
+// Watch for data changes and load primary file
+watch(data, async (newData) => {
+  if (newData?.data?.note_files && newData.data.note_files.length > 0) {
+    await loadPrimaryFile(newData.data.note_files)
+  }
+}, { immediate: true })
 
-// Update head with note data
-useHead({
-  title: note.value ? `${note.value.title} - UniNotes` : 'Nota non trovata - UniNotes',
-  meta: [
-    { 
-      name: 'description', 
-      content: note.value 
-        ? `${note.value.subject} - ${note.value.content?.substring(0, 150) || 'Appunti universitari'}...`
-        : 'Nota non trovata' 
-    }
-  ]
-})
+// Load primary file asynchronously
+const loadPrimaryFile = async (files: any[]) => {
+  const primaryFile = files.find(f => f.is_primary) || files[0]
+  if (!primaryFile || primaryFile.file_type !== 'pdf') return
 
-// If note has files, download the first file and create a blob URL
-if (note.value && note.value.note_files && note.value.note_files.length > 0) {
   try {
-    const primaryFile = note.value.note_files.find(f => f.is_primary) || note.value.note_files[0]
-    const fileArrayBuffer = await $fetch<ArrayBuffer>('/api/files/' + primaryFile?.id, {
-      headers: useRequestHeaders(['cookie']),
+    fileLoading.value = true
+    const fileArrayBuffer = await $fetch<ArrayBuffer>(`/api/files/${primaryFile.id}`, {
       responseType: 'arrayBuffer'
     })
     
-    // Convert ArrayBuffer to Blob
     const blob = new Blob([fileArrayBuffer], { 
-      type: primaryFile?.mime_type || 'application/pdf' 
+      type: primaryFile.mime_type || 'application/pdf' 
     })
 
-    // Create object URL for the blob
     pdfUrl.value = URL.createObjectURL(blob)
-    
-    // Cleanup the object URL when component is unmounted
-    onUnmounted(() => {
-      if (pdfUrl.value) {
-        URL.revokeObjectURL(pdfUrl.value)
-      }
-    })
   } catch (error) {
     console.error('Error loading file:', error)
+  } finally {
+    fileLoading.value = false
   }
 }
+
+// Update head with note data
+watchEffect(() => {
+  if (data.value?.data) {
+    useHead({
+      title: `${data.value.data.title} - UniNotes`,
+      meta: [
+        { 
+          name: 'description', 
+          content: `${data.value.data.subject} - ${data.value.data.content?.substring(0, 150) || 'Appunti universitari'}...`
+        }
+      ]
+    })
+  }
+})
+
+// Cleanup
+onUnmounted(() => {
+  if (pdfUrl.value) {
+    URL.revokeObjectURL(pdfUrl.value)
+  }
+})
 
 // Helper functions
 const getSubjectIcon = (subject: string): string => {
@@ -345,36 +390,66 @@ const formatContent = (content: string): string => {
 }
 
 const getTotalFileSize = (): string => {
-  if (!note.value?.note_files || note.value.note_files.length === 0) return '--'
-  const total = note.value.note_files.reduce((sum, file) => sum + file.file_size, 0)
+  if (!data.value?.data?.note_files || data.value.data.note_files.length === 0) return '--'
+  const total = data.value.data.note_files.reduce((sum, file) => sum + file.file_size, 0)
   return formatFileSize(total)
 }
 
 // Actions
-const downloadFile = (fileId: string, fileName: string) => {
-  const link = document.createElement('a')
-  link.href = `/api/files/${fileId}`
-  link.download = fileName
-  link.click()
-}
-
-const shareNote = () => {
-  if (navigator.share) {
-    navigator.share({
-      title: note.value?.title,
-      text: `Guarda questi appunti: ${note.value?.title}`,
-      url: window.location.href
+const downloadFile = async (fileId: string, fileName: string) => {
+  try {
+    downloadingFiles.value.add(fileId)
+    
+    const fileBlob = await $fetch<Blob>(`/api/files/${fileId}`, {
+      responseType: 'blob'
     })
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(window.location.href)
-    alert('Link copiato negli appunti!')
+    
+    const url = URL.createObjectURL(fileBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = fileName
+    link.click()
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('Download failed:', error)
+  } finally {
+    downloadingFiles.value.delete(fileId)
   }
 }
 
-const toggleFavorite = () => {
-  // TODO: Implement favorite toggle API call
-  console.log('Toggle favorite for note:', noteId)
+const toggleFavorite = async () => {
+  if (!data.value?.data) return
+  
+  try {
+    favoriteLoading.value = true
+    
+    if (data.value.data.is_favorited) {
+      await $fetch(`/api/notes/${noteId}/favorite`, { method: 'DELETE' })
+      data.value.data.is_favorited = false
+    } else {
+      await $fetch(`/api/notes/${noteId}/favorite`, { method: 'POST' })
+      data.value.data.is_favorited = true
+    }
+  } catch (error) {
+    console.error('Failed to toggle favorite:', error)
+  } finally {
+    favoriteLoading.value = false
+  }
+}
+
+const shareNote = () => {
+  if (!data.value?.data) return
+  
+  if (navigator.share) {
+    navigator.share({
+      title: data.value.data.title,
+      text: `Guarda questi appunti: ${data.value.data.title}`,
+      url: window.location.href
+    })
+  } else {
+    navigator.clipboard.writeText(window.location.href)
+    alert('Link copiato negli appunti!')
+  }
 }
 
 const printNote = () => {
